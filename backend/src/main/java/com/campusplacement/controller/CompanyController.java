@@ -1,0 +1,4 @@
+package com.campusplacement.controller;
+import com.campusplacement.entity.Company; import com.campusplacement.repository.CompanyRepository; import org.springframework.web.bind.annotation.*; import java.util.*;
+@RestController @RequestMapping("/companies")
+public class CompanyController { private final CompanyRepository repo; public CompanyController(CompanyRepository r){repo=r;} @GetMapping public List<Company> all(){return repo.findAll();} @GetMapping("/{id}") public Company one(@PathVariable Integer id){return repo.findById(id).orElseThrow(()->new IllegalArgumentException("Company not found"));} @PostMapping public Company create(@RequestBody Company c){return repo.save(c);} @PutMapping("/{id}") public Company update(@PathVariable Integer id,@RequestBody Company c){c.setId(id);return repo.save(c);} @DeleteMapping("/{id}") public void delete(@PathVariable Integer id){repo.deleteById(id);} }
