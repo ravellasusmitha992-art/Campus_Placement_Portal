@@ -104,14 +104,15 @@ function meetsDriveCriteria(student, drive) {
     .split(',')
     .map(department => department.trim().toLocaleLowerCase())
     .filter(Boolean);
+  const studentYear = student.graduationYear == null ? null : finiteNumber(student.graduationYear);
+  const driveYear = drive.graduationYear == null ? null : finiteNumber(drive.graduationYear);
 
   return cgpa >= minCgpa
     && tenth >= minTenth
     && twelfth >= minTwelfth
     && backlogs <= maxBacklogs
     && departments.includes(String(student.department).trim().toLocaleLowerCase())
-    && student.graduationYear != null
-    && String(student.graduationYear) === String(drive.graduationYear);
+    && studentYear === driveYear;
 }
 
 function finiteNumber(value) {
