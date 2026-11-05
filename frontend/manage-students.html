@@ -1,1 +1,153 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage Students</title><link rel="stylesheet" href="css/style.css"></head><body><header class="topbar"><div class="brand">Manage Students</div><nav><a href="admin-dashboard.html">Dashboard</a><button class="btn danger" onclick="logout()">Logout</button></nav></header><main class="container"><h1>Student Records</h1><div class="card table-wrap"><table class="table"><thead><tr><th>Roll No.</th><th>Name</th><th>Email</th><th>Department</th><th>CGPA</th><th>Backlogs</th></tr></thead><tbody id="studentsBody"></tbody></table></div></main><div id="toast" class="toast"></div><script src="js/api.js"></script><script src="js/admin.js"></script><script>loadAdminTables()</script></body></html>
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manage Students</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/manage-students.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">Placement Admin</div>
+    <nav>
+      <a href="admin-dashboard.html">Dashboard</a>
+      <button class="btn danger" type="button" onclick="logout()">Logout</button>
+    </nav>
+  </header>
+  <main class="container students-page">
+    <section class="students-heading" aria-labelledby="page-title">
+      <div class="students-heading-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="10" cy="7" r="4"></circle>
+          <path d="M20 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 id="page-title">Manage Students</h1>
+        <p>View, search and manage registered students</p>
+      </div>
+    </section>
+
+    <section class="student-summaries" aria-label="Student summary">
+      <article class="student-summary student-summary--blue">
+        <div class="student-summary-copy">
+          <h2>Total Students</h2>
+          <p class="student-summary-value" id="totalStudents" aria-live="polite">—</p>
+        </div>
+        <span class="student-summary-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="10" cy="7" r="4"></circle>
+            <path d="M20 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </span>
+      </article>
+      <article class="student-summary student-summary--green">
+        <div class="student-summary-copy">
+          <h2>Eligible Students</h2>
+          <p class="student-summary-value" id="eligibleStudents" aria-live="polite">—</p>
+          <p class="student-summary-note" id="eligibilityNote">Checking drive criteria…</p>
+        </div>
+        <span class="student-summary-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="m5 12 4 4L19 6"></path>
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+        </span>
+      </article>
+      <article class="student-summary student-summary--orange">
+        <div class="student-summary-copy">
+          <h2>Students with Backlogs</h2>
+          <p class="student-summary-value" id="backlogStudents" aria-live="polite">—</p>
+        </div>
+        <span class="student-summary-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 9v4"></path>
+            <path d="M12 17h.01"></path>
+            <path d="M10.3 3.9 1.8 18.5A2 2 0 0 0 3.5 21h17a2 2 0 0 0 1.7-2.5L13.7 3.9a2 2 0 0 0-3.4 0Z"></path>
+          </svg>
+        </span>
+      </article>
+      <article class="student-summary student-summary--purple">
+        <div class="student-summary-copy">
+          <h2>Average CGPA</h2>
+          <p class="student-summary-value" id="averageCgpa" aria-live="polite">—</p>
+        </div>
+        <span class="student-summary-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"></path>
+          </svg>
+        </span>
+      </article>
+    </section>
+
+    <section class="student-directory" aria-labelledby="directory-title">
+      <div class="directory-heading">
+        <div>
+          <h2 id="directory-title">Student Records</h2>
+          <p>Browse and filter registered student profiles.</p>
+        </div>
+        <span class="student-result-count" id="studentResultCount" aria-live="polite">Loading students…</span>
+      </div>
+
+      <div class="student-filters" role="search">
+        <label class="student-search">
+          <span class="visually-hidden">Search by roll number, name, or email</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-4-4"></path>
+          </svg>
+          <input id="studentSearch" type="search" placeholder="Search roll number, name or email" autocomplete="off">
+        </label>
+        <label class="student-filter">
+          <span class="visually-hidden">Filter by department</span>
+          <select id="departmentFilter" aria-label="Filter by department">
+            <option value="">All departments</option>
+          </select>
+        </label>
+        <label class="student-filter">
+          <span class="visually-hidden">Filter by CGPA</span>
+          <select id="cgpaFilter" aria-label="Filter by CGPA">
+            <option value="">All CGPA</option>
+            <option value="high">8.0 and above</option>
+            <option value="mid">7.0–7.99</option>
+            <option value="low">Below 7.0</option>
+          </select>
+        </label>
+        <button class="btn secondary clear-filters" id="clearFilters" type="button">Clear filters</button>
+      </div>
+
+      <div class="student-table-wrap">
+        <table class="table student-table">
+          <thead>
+            <tr>
+              <th scope="col">Roll No.</th>
+              <th scope="col">Student</th>
+              <th scope="col">Department</th>
+              <th scope="col">CGPA</th>
+              <th scope="col">Backlogs</th>
+            </tr>
+          </thead>
+          <tbody id="studentsBody">
+            <tr><td class="student-table-message" colspan="5">Loading student records…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <nav class="student-pagination" id="studentPagination" aria-label="Student table pages" hidden>
+        <span id="paginationStatus" aria-live="polite"></span>
+        <div class="student-pagination-actions">
+          <button class="btn secondary" id="previousPage" type="button">Previous</button>
+          <button class="btn secondary" id="nextPage" type="button">Next</button>
+        </div>
+      </nav>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="js/api.js"></script>
+  <script src="js/manage-students.js"></script>
+</body>
+</html>
