@@ -1,1 +1,220 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage Companies</title><link rel="stylesheet" href="css/style.css"></head><body><header class="topbar"><div class="brand">Manage Companies</div><nav><a href="admin-dashboard.html">Dashboard</a><button class="btn danger" onclick="logout()">Logout</button></nav></header><main class="container"><div class="card form"><h2>Add Company</h2><form onsubmit="createCompany(event)" class="form-grid"><div class="field"><label>Name</label><input name="name" required></div><div class="field"><label>Industry</label><input name="industry" required></div><div class="field"><label>Job Role</label><input name="jobRole" required></div><div class="field"><label>Location</label><input name="jobLocation" required></div><div class="field"><label>Package (LPA)</label><input name="salaryPackage" type="number" step="0.1" required></div><div class="field"><label>Website</label><input name="website"></div><div class="field full"><label>Description</label><textarea name="description"></textarea></div><div class="field full"><label>Job Description</label><textarea name="jobDescription"></textarea></div><div class="field full"><label>Required Skills</label><input name="requiredSkills"></div><div class="field full"><button class="btn">Create Company</button></div></form></div><h1>Company Directory</h1><div class="card table-wrap"><table class="table"><thead><tr><th>Company</th><th>Industry</th><th>Role</th><th>Location</th><th>Package</th></tr></thead><tbody id="companiesBody"></tbody></table></div></main><div id="toast" class="toast"></div><script src="js/api.js"></script><script src="js/admin.js"></script><script src="js/admin-tools.js"></script><script>loadAdminTables()</script></body></html>
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Manage Companies</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/manage-companies.css">
+</head>
+<body>
+  <header class="topbar company-topbar">
+    <a class="brand" href="admin-dashboard.html">Placement Admin</a>
+    <nav aria-label="Admin navigation">
+      <a href="admin-dashboard.html">Dashboard</a>
+      <button class="btn danger" id="logoutButton" type="button">Logout</button>
+    </nav>
+  </header>
+
+  <main class="container company-page">
+    <section class="company-heading" aria-labelledby="page-title">
+      <div class="company-heading-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M3 21h18"></path>
+          <path d="M5 21V7l8-4v18"></path>
+          <path d="M19 21V11l-6-4"></path>
+          <path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"></path>
+          <path d="M16 13v.01M16 16v.01M16 19v.01"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 id="page-title">Manage Companies</h1>
+        <p>Manage placement partners and company opportunities</p>
+      </div>
+    </section>
+
+    <section class="company-stat-grid" aria-label="Company statistics">
+      <article class="company-stat company-stat--blue">
+        <div>
+          <h2>Total Companies</h2>
+          <p class="company-stat-value" id="totalCompanies" aria-live="polite">—</p>
+        </div>
+        <span class="company-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 21h18"></path>
+            <path d="M5 21V7l8-4v18"></path>
+            <path d="M19 21V11l-6-4"></path>
+            <path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"></path>
+            <path d="M16 13v.01M16 16v.01M16 19v.01"></path>
+          </svg>
+        </span>
+      </article>
+      <article class="company-stat company-stat--green">
+        <div>
+          <h2>Total Job Roles</h2>
+          <p class="company-stat-value" id="totalJobRoles" aria-live="polite">—</p>
+        </div>
+        <span class="company-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="7" width="18" height="14" rx="2"></rect>
+            <path d="M8 7V4h8v3M3 12h18M10 12v2h4v-2"></path>
+          </svg>
+        </span>
+      </article>
+      <article class="company-stat company-stat--purple">
+        <div>
+          <h2>Different Industries</h2>
+          <p class="company-stat-value" id="totalIndustries" aria-live="polite">—</p>
+        </div>
+        <span class="company-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M2 12h20"></path>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"></path>
+          </svg>
+        </span>
+      </article>
+      <article class="company-stat company-stat--orange">
+        <div>
+          <h2>Average Package (LPA)</h2>
+          <p class="company-stat-value" id="averagePackage" aria-live="polite">—</p>
+        </div>
+        <span class="company-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2v20"></path>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </span>
+      </article>
+    </section>
+
+    <section class="company-form-card" aria-labelledby="companyFormTitle">
+      <div class="company-section-heading">
+        <span class="company-section-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 21h18"></path>
+            <path d="M5 21V7l8-4v18"></path>
+            <path d="M19 21V11l-6-4"></path>
+            <path d="M9 9v.01M9 12v.01M9 15v.01M9 18v.01"></path>
+            <path d="M16 13v.01M16 16v.01M16 19v.01"></path>
+          </svg>
+        </span>
+        <div>
+          <h2 id="companyFormTitle">Add New Company</h2>
+          <p id="companyFormSubtitle">Add a placement partner and the opportunity details students need.</p>
+        </div>
+      </div>
+
+      <form id="companyForm" class="company-form" novalidate>
+        <div class="company-field">
+          <label for="companyName">Company Name <span aria-hidden="true">*</span></label>
+          <input id="companyName" name="name" type="text" autocomplete="organization" required maxlength="160" placeholder="e.g. Acme Technologies">
+          <span class="company-field-error" id="nameError"></span>
+        </div>
+        <div class="company-field">
+          <label for="companyIndustry">Industry <span aria-hidden="true">*</span></label>
+          <input id="companyIndustry" name="industry" type="text" required maxlength="120" placeholder="e.g. Information Technology">
+          <span class="company-field-error" id="industryError"></span>
+        </div>
+        <div class="company-field">
+          <label for="companyJobRole">Job Role <span aria-hidden="true">*</span></label>
+          <input id="companyJobRole" name="jobRole" type="text" required maxlength="160" placeholder="e.g. Software Engineer">
+          <span class="company-field-error" id="jobRoleError"></span>
+        </div>
+        <div class="company-field">
+          <label for="companyLocation">Location <span aria-hidden="true">*</span></label>
+          <input id="companyLocation" name="jobLocation" type="text" required maxlength="160" placeholder="e.g. Bengaluru, India">
+          <span class="company-field-error" id="jobLocationError"></span>
+        </div>
+        <div class="company-field">
+          <label for="companyPackage">Package (LPA) <span aria-hidden="true">*</span></label>
+          <input id="companyPackage" name="salaryPackage" type="number" min="0" step="0.1" required inputmode="decimal" placeholder="e.g. 8.5">
+          <span class="company-field-error" id="salaryPackageError"></span>
+        </div>
+        <div class="company-field">
+          <label for="companyWebsite">Website</label>
+          <input id="companyWebsite" name="website" type="text" inputmode="url" autocomplete="url" placeholder="https://company.example">
+          <span class="company-field-error" id="websiteError"></span>
+        </div>
+        <div class="company-field company-field--full">
+          <label for="companyDescription">Description</label>
+          <textarea id="companyDescription" name="description" rows="3" maxlength="2000" placeholder="A short introduction to the company"></textarea>
+        </div>
+        <div class="company-field company-field--full">
+          <label for="companyJobDescription">Job Description</label>
+          <textarea id="companyJobDescription" name="jobDescription" rows="4" maxlength="5000" placeholder="Share the role and opportunity details"></textarea>
+        </div>
+        <div class="company-field company-field--full">
+          <label for="companySkills">Required Skills</label>
+          <input id="companySkills" name="requiredSkills" type="text" maxlength="1000" placeholder="e.g. Java, SQL, Communication">
+          <span class="company-field-hint">Separate skills with commas.</span>
+        </div>
+        <div class="company-form-actions company-field--full">
+          <button class="btn company-submit" id="companySubmit" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            <span>Create Company</span>
+          </button>
+          <button class="btn secondary company-cancel" id="cancelEdit" type="button" hidden>Cancel edit</button>
+          <span class="company-form-feedback" id="companyFormFeedback" role="status" aria-live="polite"></span>
+        </div>
+      </form>
+    </section>
+
+    <section class="company-directory" aria-labelledby="directoryTitle">
+      <div class="company-directory-heading">
+        <div>
+          <h2 id="directoryTitle">Company Directory</h2>
+          <p>Explore placement partners and the opportunities they offer.</p>
+        </div>
+        <span class="company-result-count" id="companyResultCount" aria-live="polite">Loading companies…</span>
+      </div>
+      <div class="company-filters" role="search">
+        <label class="company-search">
+          <span class="visually-hidden">Search companies by name</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m20 20-4-4"></path>
+          </svg>
+          <input id="companySearch" type="search" placeholder="Search company name" autocomplete="off">
+        </label>
+        <label>
+          <span class="visually-hidden">Filter by industry</span>
+          <select id="industryFilter" aria-label="Filter by industry">
+            <option value="">All industries</option>
+          </select>
+        </label>
+        <label>
+          <span class="visually-hidden">Filter by location</span>
+          <select id="locationFilter" aria-label="Filter by location">
+            <option value="">All locations</option>
+          </select>
+        </label>
+        <button class="btn secondary company-clear-filters" id="clearCompanyFilters" type="button">Clear filters</button>
+      </div>
+      <div class="company-card-grid" id="companiesList" aria-live="polite">
+        <div class="company-state">Loading company records…</div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="company-details-dialog" id="companyDetailsDialog" aria-labelledby="detailsTitle">
+    <div class="company-dialog-header">
+      <div>
+        <p class="company-dialog-eyebrow">Company profile</p>
+        <h2 id="detailsTitle"></h2>
+      </div>
+      <button class="company-dialog-close" id="closeDetails" type="button" aria-label="Close company details">×</button>
+    </div>
+    <div id="companyDetailsContent" class="company-details-content"></div>
+    <div class="company-dialog-actions">
+      <button class="btn secondary" id="closeDetailsFooter" type="button">Close</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="js/api.js"></script>
+  <script src="js/manage-companies.js"></script>
+</body>
+</html>
