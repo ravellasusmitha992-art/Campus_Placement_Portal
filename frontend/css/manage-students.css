@@ -8,7 +8,7 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 26px;
-}
+ }
 
 .students-heading-icon {
   display: grid;
@@ -187,7 +187,7 @@
   align-items: center;
 }
 
-.student-search > svg {
+.student-search>svg {
   position: absolute;
   left: 13px;
   z-index: 1;
@@ -527,6 +527,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .student-summary,
   .student-table tbody tr.student-row {
     transition: none;
