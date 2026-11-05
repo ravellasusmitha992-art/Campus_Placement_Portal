@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded',()=>{
    const r=await api('/auth/login',{method:'POST',body:{email,password,role}});
    saveSession(r.data); location.href=role==='admin'?'admin-dashboard.html':'student-dashboard.html';
   }catch(err){toast(err.message)}
- });
+  });
  const reg=document.getElementById('registerForm');
  if(reg) reg.addEventListener('submit',async e=>{
   e.preventDefault();
