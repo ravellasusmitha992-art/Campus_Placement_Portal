@@ -1,0 +1,49 @@
+package com.campusplacement.service;
+
+import com.campusplacement.entity.*; import com.campusplacement.repository.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
+import java.time.*; import java.util.*; import java.util.stream.*;
+
+@Service
+public class PlacementService {
+ private final StudentRepository students; private final PlacementDriveRepository drives; private final ApplicationRepository applications; private final InterviewRepository interviews; private final PlacementResultRepository results; private final NotificationRepository notifications;
+ public PlacementService(StudentRepository s,PlacementDriveRepository d,ApplicationRepository a,InterviewRepository i,PlacementResultRepository r,NotificationRepository n){students=s;drives=d;applications=a;interviews=i;results=r;notifications=n;}
+ public boolean eligible(Student s,PlacementDrive d){if(s==null||d==null||d.getEligibleDepartments()==null)return false;if(s.getCgpa()==null||s.getTenthPercentage()==null||s.getTwelfthPercentage()==null||s.getBacklogs()==null)return false;boolean dept=Arrays.stream(d.getEligibleDepartments().split(",")).map(String::trim).anyMatch(x->x.equalsIgnoreCase(s.getDepartment()));boolean year=Objects.equals(s.getGraduationYear(),d.getGraduationYear());return s.getCgpa()>=d.getMinCgpa()&&s.getTenthPercentage()>=d.getMinTenthPercentage()&&s.getTwelfthPercentage()>=d.getMinTwelfthPercentage()&&s.getBacklogs()<=d.getMaxBacklogs()&&dept&&year;}
+ public Application apply(Integer studentId,Integer driveId,String details){Student s=students.findById(studentId).orElseThrow(()->new IllegalArgumentException("Student not found"));PlacementDrive d=drives.findById(driveId).orElseThrow(()->new IllegalArgumentException("Placement drive not found"));if(applications.findByStudentIdAndDriveId(studentId,driveId).isPresent())throw new IllegalArgumentException("Already applied to this drive");LocalDate today=LocalDate.now();if(!"REGISTRATION_OPEN".equalsIgnoreCase(d.getStatus())||today.isBefore(d.getRegStartDate())||today.isAfter(d.getRegEndDate()))throw new IllegalArgumentException("Registration is closed");if(!eligible(s,d))throw new IllegalArgumentException("You are not eligible for this placement drive");Application a=new Application();a.setStudent(s);a.setDrive(d);a.setAppliedDate(LocalDateTime.now());a.setStatus("APPLIED");a.setRegistrationDetails(details);Application saved=applications.save(a);notifyOne(s,"Application submitted","Your application for "+d.getJobRole()+" at "+d.getCompany().getName()+" was submitted successfully.");return saved;}
+ private void notifyOne(Student s,String title,String msg){Notification n=new Notification();n.setStudent(s);n.setTitle(title);n.setMessage(msg);n.setCreatedDate(LocalDateTime.now());n.setRead(false);notifications.save(n);}
+ public List<Student> resolveStudents(String targetType,Integer studentId,List<Integer> studentIds,List<String> studentRollNumbers,String branch,String from,String to){
+  String t=targetType==null?"INDIVIDUAL":targetType.trim().toUpperCase();
+  if("ALL".equals(t)) return students.findAll();
+  if("BRANCH".equals(t)){
+   if(branch==null||branch.trim().isEmpty()) throw new IllegalArgumentException("Branch is required");
+   return students.findByDepartmentIgnoreCase(branch.trim());
+  }
+  if("RANGE".equals(t)){
+   if(from==null||to==null||from.trim().isEmpty()||to.trim().isEmpty()||from.trim().compareToIgnoreCase(to.trim())>0) throw new IllegalArgumentException("Invalid roll-number range");
+   return students.findByRollNumberBetween(from.trim(),to.trim());
+  }
+  if("SPECIFIC".equals(t)){
+   if(studentRollNumbers!=null&&!studentRollNumbers.isEmpty()){
+    List<Student> found=students.findByRollNumberIn(studentRollNumbers);
+    if(found.size()!=new HashSet<>(studentRollNumbers).size()) throw new IllegalArgumentException("One or more roll numbers were not found");
+    return found;
+   }
+   if(studentIds!=null&&!studentIds.isEmpty()){
+    List<Student> found=students.findAllById(studentIds);
+    if(found.size()!=new HashSet<>(studentIds).size()) throw new IllegalArgumentException("One or more student IDs were not found");
+    return found;
+   }
+   throw new IllegalArgumentException("Select at least one student");
+  }
+  if(studentId==null) throw new IllegalArgumentException("Student ID is required");
+  return students.findById(studentId).map(Collections::singletonList).orElseThrow(()->new IllegalArgumentException("Student not found"));
+}
+ @Transactional public int bulkNotify(Map<String,Object> m){String target=(String)m.get("targetType");Integer studentId=m.get("studentId")==null?null:Integer.valueOf(String.valueOf(m.get("studentId")));
+  if(studentId==null && m.get("studentRollNumber")!=null){Student s=students.findByRollNumber(String.valueOf(m.get("studentRollNumber")).trim()).orElseThrow(()->new IllegalArgumentException("Student roll number not found"));studentId=s.getId();}
+  List<Integer> ids=new ArrayList<>(); Object raw=m.get("studentIds"); if(raw instanceof Collection) for(Object x:(Collection<?>)raw) ids.add(Integer.valueOf(String.valueOf(x)));
+  List<String> rolls=new ArrayList<>(); Object rr=m.get("studentRollNumbers"); if(rr instanceof Collection) for(Object x:(Collection<?>)rr) rolls.add(String.valueOf(x).trim());
+  List<Student> targets=resolveStudents(target,studentId,ids,rolls,(String)m.get("branch"),(String)m.get("fromRollNumber"),(String)m.get("toRollNumber"));String title=(String)m.get("title");String msg=(String)m.get("message");if(msg==null||msg.trim().isEmpty())throw new IllegalArgumentException("Notification message is required");if(title==null||title.trim().isEmpty())title="Placement Notification";final String notificationTitle=title;List<Notification> out=targets.stream().map(s->{Notification n=new Notification();n.setStudent(s);n.setTitle(notificationTitle);n.setMessage(msg.trim());n.setCreatedDate(LocalDateTime.now());n.setRead(false);return n;}).collect(Collectors.toList());notifications.saveAll(out);return out.size();}
+ public List<Student> previewInterviewStudents(Map<String,Object> m){Integer studentId=m.get("studentId")==null?null:Integer.valueOf(String.valueOf(m.get("studentId")));List<Integer> ids=new ArrayList<>();Object raw=m.get("studentIds");if(raw instanceof Collection)for(Object x:(Collection<?>)raw)ids.add(Integer.valueOf(String.valueOf(x)));List<String> rolls=new ArrayList<>();Object rr=m.get("studentRollNumbers");if(rr instanceof Collection)for(Object x:(Collection<?>)rr)rolls.add(String.valueOf(x).trim());return resolveStudents((String)m.get("targetType"),studentId,ids,rolls,(String)m.get("branch"),(String)m.get("fromRollNumber"),(String)m.get("toRollNumber"));}
+ @Transactional public List<Interview> bulkSchedule(Map<String,Object> m){Integer driveId=((Number)m.get("driveId")).intValue();PlacementDrive d=drives.findById(driveId).orElseThrow(()->new IllegalArgumentException("Placement drive not found"));List<Student> targets=previewInterviewStudents(m);String round=(String)m.get("round");String date=(String)m.get("interviewDate");String time=(String)m.get("interviewTime");if(round==null||round.trim().isEmpty()||date==null||time==null)throw new IllegalArgumentException("Interview details are required");List<Integer> ids=targets.stream().map(Student::getId).collect(Collectors.toList());List<Application> apps=applications.findByDriveIdAndStudentIdIn(driveId,ids);Map<Integer,Application> byStudent=apps.stream().collect(Collectors.toMap(a->a.getStudent().getId(),a->a,(a,b)->a));List<Interview> out=new ArrayList<>();for(Student s:targets){Application a=byStudent.get(s.getId());if(a==null)continue;if(interviews.existsByApplicationIdAndRound(a.getId(),round))continue;Interview i=new Interview();i.setApplication(a);i.setStudent(s);i.setDrive(d);i.setRound(round);i.setInterviewDate(LocalDate.parse(date));i.setInterviewTime(LocalTime.parse(time));i.setVenue((String)m.get("venue"));i.setMeetingLink((String)m.get("meetingLink"));i.setType((String)m.get("type"));i.setStatus("SCHEDULED");out.add(i);a.setStatus("INTERVIEW_SCHEDULED");}List<Interview> saved=interviews.saveAll(out);applications.saveAll(apps);for(Interview i:saved)notifyOne(i.getStudent(),"Interview Scheduled", "Company: "+d.getCompany().getName()+" | Role: "+d.getJobRole()+" | Date: "+i.getInterviewDate()+" | Time: "+i.getInterviewTime()+" | Mode: "+i.getType());return saved;}
+ public Interview schedule(Map<String,String> m){Map<String,Object> x=new HashMap<>();x.put("driveId",Integer.valueOf(m.get("driveId")));x.put("targetType","INDIVIDUAL");x.put("studentId",Integer.valueOf(m.get("studentId")));x.put("round",m.get("round"));x.put("interviewDate",m.get("interviewDate"));x.put("interviewTime",m.get("interviewTime"));x.put("venue",m.get("venue"));x.put("meetingLink",m.get("meetingLink"));x.put("type",m.get("type"));List<Interview> out=bulkSchedule(x);if(out.isEmpty())throw new IllegalArgumentException("No eligible application found or interview already scheduled");return out.get(0);}
+ public PlacementResult publishResult(Map<String,String> m){Application a=applications.findById(Integer.valueOf(m.get("applicationId"))).orElseThrow(()->new IllegalArgumentException("Application not found"));PlacementResult r=new PlacementResult();r.setStudent(a.getStudent());r.setDrive(a.getDrive());r.setPackageValue(Double.valueOf(m.get("package")));r.setStatus(m.get("status"));if(m.get("joiningDate")!=null&&!m.get("joiningDate").isEmpty())r.setJoiningDate(LocalDate.parse(m.get("joiningDate")));a.setStatus("SELECTED".equalsIgnoreCase(m.get("status"))?"SELECTED":"REJECTED");applications.save(a);PlacementResult saved=results.save(r);notifyOne(a.getStudent(),"Placement result published","Result for "+a.getDrive().getCompany().getName()+": "+r.getStatus());return saved;}
+}

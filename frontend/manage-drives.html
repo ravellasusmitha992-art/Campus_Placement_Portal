@@ -1,0 +1,922 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Manage Drives</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        /* ==============================
+           Eligible Departments Dropdown
+           ============================== */
+
+        .department-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .department-dropdown-btn {
+            width: 100%;
+            padding: 12px 14px;
+
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            font-size: 15px;
+            text-align: left;
+        }
+
+        .department-dropdown-btn:hover {
+            border-color: #888;
+        }
+
+        .department-dropdown-list {
+            display: none;
+
+            position: absolute;
+
+            top: 100%;
+            left: 0;
+            right: 0;
+
+            background: white;
+
+            border: 1px solid #ccc;
+            border-radius: 6px;
+
+            margin-top: 4px;
+
+            max-height: 250px;
+            overflow-y: auto;
+
+            z-index: 1000;
+
+            padding: 8px;
+        }
+
+        .department-dropdown-list.show {
+            display: block;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 9px 8px;
+
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+            background: #f2f2f2;
+        }
+
+        .checkbox-item input {
+            width: 16px;
+            height: 16px;
+
+            cursor: pointer;
+        }
+
+        .checkbox-item span {
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- ==============================
+         HEADER
+         ============================== -->
+
+    <header class="topbar">
+
+        <div class="brand">
+            Manage Placement Drives
+        </div>
+
+        <nav>
+
+            <a href="admin-dashboard.html">
+                Dashboard
+            </a>
+
+            <button
+                class="btn danger"
+                onclick="logout()">
+                Logout
+            </button>
+
+        </nav>
+
+    </header>
+
+
+    <!-- ==============================
+         MAIN CONTENT
+         ============================== -->
+
+    <main class="container">
+
+
+        <!-- ==============================
+             CREATE PLACEMENT DRIVE
+             ============================== -->
+
+        <div class="card form">
+
+            <h2>
+                Create Placement Drive
+            </h2>
+
+
+            <form
+                onsubmit="prepareDepartments(); createDrive(event)"
+                class="form-grid">
+
+
+                <!-- Company -->
+
+                <div class="field">
+
+                    <label>
+                        Company
+                    </label>
+
+                    <input
+                        name="company"
+                        id="company"
+                        type="text"
+                        placeholder="Enter company name"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Job Role -->
+
+                <div class="field">
+
+                    <label>
+                        Job Role
+                    </label>
+
+                    <input
+                        name="jobRole"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Drive Date -->
+
+                <div class="field">
+
+                    <label>
+                        Drive Date
+                    </label>
+
+                    <input
+                        name="driveDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Registration Start -->
+
+                <div class="field">
+
+                    <label>
+                        Registration Start
+                    </label>
+
+                    <input
+                        name="regStartDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Registration End -->
+
+                <div class="field">
+
+                    <label>
+                        Registration End
+                    </label>
+
+                    <input
+                        name="regEndDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Location -->
+
+                <div class="field">
+
+                    <label>
+                        Location
+                    </label>
+
+                    <input
+                        name="jobLocation"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Salary Package -->
+
+                <div class="field">
+
+                    <label>
+                        Salary Package
+                    </label>
+
+                    <input
+                        name="salaryPackage"
+                        type="number"
+                        step="0.1"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Min CGPA -->
+
+                <div class="field">
+
+                    <label>
+                        Min CGPA
+                    </label>
+
+                    <input
+                        name="minCgpa"
+                        type="number"
+                        step="0.1"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Min 10th Percentage -->
+
+                <div class="field">
+
+                    <label>
+                        Min 10th %
+                    </label>
+
+                    <input
+                        name="minTenthPercentage"
+                        type="number"
+                        step="0.1"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Min 12th Percentage -->
+
+                <div class="field">
+
+                    <label>
+                        Min 12th %
+                    </label>
+
+                    <input
+                        name="minTwelfthPercentage"
+                        type="number"
+                        step="0.1"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Max Backlogs -->
+
+                <div class="field">
+
+                    <label>
+                        Max Backlogs
+                    </label>
+
+                    <input
+                        name="maxBacklogs"
+                        type="number"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Graduation Year -->
+
+                <div class="field">
+
+                    <label>
+                        Graduation Year
+                    </label>
+
+                    <input
+                        name="graduationYear"
+                        type="number"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Vacancies -->
+
+                <div class="field">
+
+                    <label>
+                        Vacancies
+                    </label>
+
+                    <input
+                        name="vacancies"
+                        type="number"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Company Registration Link -->
+
+                <div class="field">
+
+                    <label>
+                        Application Link / Company Registration Link
+                    </label>
+
+                    <input
+                        name="applicationLink"
+                        type="url"
+                        placeholder="https://company.com/register"
+                    >
+
+                    <small class="muted">
+                        Optional. Must start with http:// or https://
+                    </small>
+
+                </div>
+
+
+                <!-- Status -->
+
+                <div class="field">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <select name="status">
+
+                        <option value="REGISTRATION_OPEN">
+                            REGISTRATION_OPEN
+                        </option>
+
+                        <option value="UPCOMING">
+                            UPCOMING
+                        </option>
+
+                        <option value="REGISTRATION_CLOSED">
+                            REGISTRATION_CLOSED
+                        </option>
+
+                        <option value="ONGOING">
+                            ONGOING
+                        </option>
+
+                        <option value="COMPLETED">
+                            COMPLETED
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- ==============================
+                     ELIGIBLE DEPARTMENTS
+                     ============================== -->
+
+                <div class="field full">
+
+                    <label>
+                        Eligible Departments
+                    </label>
+
+
+                    <!-- Hidden field sent to backend -->
+
+                    <input
+                        type="hidden"
+                        id="eligibleDepartments"
+                        name="eligibleDepartments"
+                    >
+
+
+                    <!-- Dropdown -->
+
+                    <div class="department-dropdown">
+
+
+                        <!-- Dropdown Button -->
+
+                        <button
+                            type="button"
+                            class="department-dropdown-btn"
+                            onclick="toggleDepartmentDropdown()"
+                        >
+
+                            <span id="departmentSelectedText">
+                                Select Departments
+                            </span>
+
+                            <span>
+                                ▼
+                            </span>
+
+                        </button>
+
+
+                        <!-- Dropdown List -->
+
+                        <div
+                            id="departmentDropdownList"
+                            class="department-dropdown-list"
+                        >
+
+
+                            <!-- Computer Science -->
+
+                            <label class="checkbox-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="department-checkbox"
+                                    value="Computer Science"
+                                    onchange="updateDepartmentSelection()"
+                                >
+
+                                <span>
+                                    Computer Science
+                                </span>
+
+                            </label>
+
+
+                            <!-- Information Technology -->
+
+                            <label class="checkbox-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="department-checkbox"
+                                    value="Information Technology"
+                                    onchange="updateDepartmentSelection()"
+                                >
+
+                                <span>
+                                    Information Technology
+                                </span>
+
+                            </label>
+
+
+                            <!-- ECE -->
+
+                            <label class="checkbox-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="department-checkbox"
+                                    value="Electronics and Communication Engineering"
+                                    onchange="updateDepartmentSelection()"
+                                >
+
+                                <span>
+                                    Electronics and Communication Engineering
+                                </span>
+
+                            </label>
+
+
+                            <!-- EEE -->
+
+                            <label class="checkbox-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="department-checkbox"
+                                    value="Electrical and Electronics Engineering"
+                                    onchange="updateDepartmentSelection()"
+                                >
+
+                                <span>
+                                    Electrical and Electronics Engineering
+                                </span>
+
+                            </label>
+
+
+                            <!-- Mechanical -->
+
+                            <label class="checkbox-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="department-checkbox"
+                                    value="Mechanical Engineering"
+                                    onchange="updateDepartmentSelection()"
+                                >
+
+                                <span>
+                                    Mechanical Engineering
+                                </span>
+
+                            </label>
+
+
+                            <!-- Civil -->
+
+                            <label class="checkbox-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="department-checkbox"
+                                    value="Civil Engineering"
+                                    onchange="updateDepartmentSelection()"
+                                >
+
+                                <span>
+                                    Civil Engineering
+                                </span>
+
+                            </label>
+
+
+                            <!-- AI & ML -->
+
+                            <label class="checkbox-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="department-checkbox"
+                                    value="Artificial Intelligence and Machine Learning"
+                                    onchange="updateDepartmentSelection()"
+                                >
+
+                                <span>
+                                    Artificial Intelligence and Machine Learning
+                                </span>
+
+                            </label>
+
+
+                            <!-- Data Science -->
+
+                            <label class="checkbox-item">
+
+                                <input
+                                    type="checkbox"
+                                    class="department-checkbox"
+                                    value="Data Science"
+                                    onchange="updateDepartmentSelection()"
+                                >
+
+                                <span>
+                                    Data Science
+                                </span>
+
+                            </label>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <small class="muted">
+                        Select one or more departments.
+                    </small>
+
+                </div>
+
+
+                <!-- Required Skills -->
+
+                <div class="field full">
+
+                    <label>
+                        Required Skills
+                    </label>
+
+                    <input
+                        name="requiredSkills"
+                        placeholder="Java, SQL, Spring Boot"
+                    >
+
+                </div>
+
+
+                <!-- Job Description -->
+
+                <div class="field full">
+
+                    <label>
+                        Job Description
+                    </label>
+
+                    <textarea
+                        name="jobDescription"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Selection Process -->
+
+                <div class="field full">
+
+                    <label>
+                        Selection Process
+                    </label>
+
+                    <textarea
+                        name="selectionProcess"
+                    ></textarea>
+
+                </div>
+
+
+                <!-- Submit -->
+
+                <div class="field full">
+
+                    <button
+                        type="submit"
+                        class="btn"
+                    >
+                        Create Drive
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+
+
+        <!-- ==============================
+             PLACEMENT DRIVES TABLE
+             ============================== -->
+
+        <h1>
+            Placement Drives
+        </h1>
+
+
+        <div class="card table-wrap">
+
+            <table class="table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Company
+                        </th>
+
+                        <th>
+                            Role
+                        </th>
+
+                        <th>
+                            Drive Date
+                        </th>
+
+                        <th>
+                            Reg. End
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody id="drivesBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+    </main>
+
+
+
+    <!-- ==============================
+         TOAST
+         ============================== -->
+
+    <div
+        id="toast"
+        class="toast">
+    </div>
+
+
+
+    <!-- ==============================
+         JAVASCRIPT FILES
+         ============================== -->
+
+    <script src="js/api.js"></script>
+
+    <script src="js/admin.js"></script>
+
+    <script src="js/admin-tools.js"></script>
+
+
+
+    <script>
+
+
+        /* ==========================================
+           OPEN / CLOSE DEPARTMENT DROPDOWN
+           ========================================== */
+
+        function toggleDepartmentDropdown() {
+
+            const dropdown =
+                document.getElementById(
+                    "departmentDropdownList"
+                );
+
+            dropdown.classList.toggle("show");
+
+        }
+
+
+
+        /* ==========================================
+           UPDATE SELECTED DEPARTMENTS
+           ========================================== */
+
+        function updateDepartmentSelection() {
+
+            const checkboxes =
+                document.querySelectorAll(
+                    ".department-checkbox:checked"
+                );
+
+
+            const selectedDepartments = [];
+
+
+            checkboxes.forEach(function (checkbox) {
+
+                selectedDepartments.push(
+                    checkbox.value
+                );
+
+            });
+
+
+            /*
+             * Store selected departments
+             * in hidden input.
+             */
+
+            document.getElementById(
+                "eligibleDepartments"
+            ).value =
+                selectedDepartments.join(", ");
+
+
+
+            /*
+             * Change dropdown button text.
+             */
+
+            const text =
+                document.getElementById(
+                    "departmentSelectedText"
+                );
+
+
+            if (selectedDepartments.length === 0) {
+
+                text.textContent =
+                    "Select Departments";
+
+            }
+
+            else {
+
+                text.textContent =
+                    selectedDepartments.length +
+                    " department(s) selected";
+
+            }
+
+        }
+
+
+
+        /* ==========================================
+           PREPARE DEPARTMENTS BEFORE FORM SUBMIT
+           ========================================== */
+
+        function prepareDepartments() {
+
+            updateDepartmentSelection();
+
+        }
+
+
+
+        /* ==========================================
+           LOAD PLACEMENT DRIVES
+           ========================================== */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+                if (
+                    typeof loadAdminTables ===
+                    "function"
+                ) {
+
+                    loadAdminTables();
+
+                }
+
+                else {
+
+                    console.error(
+                        "loadAdminTables() function not found."
+                    );
+
+                }
+
+            }
+        );
+
+
+    </script>
+
+
+</body>
+
+</html>
+
+
+
+
