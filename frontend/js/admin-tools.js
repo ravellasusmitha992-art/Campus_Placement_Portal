@@ -1,4 +1,4 @@
-async function loadCompanyOptions() { const rows = await api('/companies'); const s = document.getElementById('companyId'); if (s) s.innerHTML = rows.map(c => `<option value="${c.id}">${c.name}</option>`).join('') }
+ async function loadCompanyOptions() { const rows = await api('/companies'); const s = document.getElementById('companyId'); if (s) s.innerHTML = rows.map(c => `<option value="${c.id}">${c.name}</option>`).join('') }
 async function createCompany(e) { e.preventDefault(); const f = e.target; const b = Object.fromEntries(new FormData(f).entries()); b.salaryPackage = Number(b.salaryPackage); try { await api('/companies', { method: 'POST', body: b }); toast('Company created'); f.reset(); } catch (err) { toast(err.message) } }
 async function createDrive(e) {
     e.preventDefault(); const f = e.target; const b = Object.fromEntries(new FormData(f).entries());
