@@ -1,1 +1,297 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage Interviews</title><link rel="stylesheet" href="css/style.css"></head><body><header class="topbar"><div class="brand">Manage Interviews</div><nav><a href="admin-dashboard.html">Dashboard</a><button class="btn danger" onclick="logout()">Logout</button></nav></header><main class="container"><div class="card form"><h2>Schedule Interview</h2><form onsubmit="scheduleBulkInterview(event)" class="form-grid"><div class="field"><label>Placement Drive</label><select id="driveId" required></select></div><div class="field"><label>Target Students</label><select id="targetType" onchange="toggleInterviewTarget()"><option value="INDIVIDUAL">Individual Student</option><option value="SPECIFIC">Multiple Students</option><option value="BRANCH">Branch / Department</option><option value="RANGE">Roll Number Range</option></select></div><div id="studentField" class="field"><label>Student Roll Number</label><input id="studentRollNumber" placeholder="STU001"></div><div id="studentsField" class="field" style="display:none"><label>Student Roll Numbers (comma-separated)</label><input id="studentIds" placeholder="STU001,STU002,STU003"></div><div id="interviewBranchField" class="field" style="display:none"><label>Branch / Department</label><input id="interviewBranch" placeholder="Information Technology"></div><div id="interviewRangeField" class="form-grid" style="display:none"><div class="field"><label>From Roll Number</label><input id="interviewFrom" placeholder="STU001"></div><div class="field"><label>To Roll Number</label><input id="interviewTo" placeholder="STU010"></div></div><div class="field"><label>Round</label><input id="round" placeholder="Technical Round 1" required></div><div class="field"><label>Date</label><input id="interviewDate" type="date" required></div><div class="field"><label>Time</label><input id="interviewTime" type="time" required></div><div class="field"><label>Type</label><select id="type"><option>ONLINE</option><option>OFFLINE</option></select></div><div class="field"><label>Venue / Location</label><input id="venue" required></div><div class="field full"><label>Meeting Link</label><input id="meetingLink"></div><div class="field full"><button type="button" class="btn secondary" onclick="previewInterviewSelection()">Preview Selected Students</button></div><div class="field full"><div id="preview" class="card muted">No students selected.</div></div><div class="field full"><button class="btn">Schedule Interview</button></div></form></div><h1>Interview Schedule</h1><div class="card table-wrap"><table class="table"><thead><tr><th>Student</th><th>Company</th><th>Round</th><th>Date</th><th>Time</th><th>Status</th></tr></thead><tbody id="interviewsBody"></tbody></table></div></main><div id="toast" class="toast"></div><script src="js/api.js"></script><script src="js/interviews.js"></script><script src="js/manage-interviews.js"></script><script>loadInterviewDrives();loadInterviews()</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage Interviews | Campus Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/manage-interviews.css">
+</head>
+<body class="manage-interviews-page">
+  <header class="topbar">
+    <a class="brand" href="manage-interviews.html" aria-label="Manage interviews">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M7.5 3v4M16.5 3v4M3.5 9.5h17M8 13h3M8 16.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span>Manage <strong>Interviews</strong></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a class="dashboard-link" href="admin-dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m3.5 10 8.5-7 8.5 7M5.5 9v11h13V9M9 20v-6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Dashboard
+      </a>
+      <button class="btn danger logout-button" type="button" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10m4-4 4-4-4-4m4 4H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Logout
+      </button>
+    </nav>
+  </header>
+
+  <main class="container interviews-container">
+    <section class="interviews-hero" aria-labelledby="page-title">
+      <div class="interviews-hero-copy">
+        <p class="eyebrow">CAMPUS RECRUITMENT</p>
+        <h1 id="page-title">Interview Management</h1>
+        <p>Schedule, monitor, and manage student interviews efficiently.</p>
+      </div>
+      <div class="interview-hero-art" aria-hidden="true">
+        <span class="interview-orbit interview-orbit-one"></span>
+        <span class="interview-orbit interview-orbit-two"></span>
+        <span class="interview-hero-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M7.5 3v4M16.5 3v4M3.5 9.5h17M8 13h3M8 16.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </div>
+    </section>
+
+    <section class="interview-stats" aria-label="Interview statistics">
+      <article class="interview-stat interview-stat--blue">
+        <div class="interview-stat-copy">
+          <h2>Total Interviews</h2>
+          <p id="totalInterviews" aria-live="polite">—</p>
+        </div>
+        <span class="interview-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M7.5 3v4M16.5 3v4M3.5 9.5h17M8 13h3M8 16.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </article>
+      <article class="interview-stat interview-stat--purple">
+        <div class="interview-stat-copy">
+          <h2>Scheduled</h2>
+          <p id="scheduledInterviews" aria-live="polite">—</p>
+        </div>
+        <span class="interview-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M12 6.5V12l3.5 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </article>
+      <article class="interview-stat interview-stat--green">
+        <div class="interview-stat-copy">
+          <h2>Completed</h2>
+          <p id="completedInterviews" aria-live="polite">—</p>
+        </div>
+        <span class="interview-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="m5 12 4.2 4.2L19 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </span>
+      </article>
+      <article class="interview-stat interview-stat--red">
+        <div class="interview-stat-copy">
+          <h2>Cancelled</h2>
+          <p id="cancelledInterviews" aria-live="polite">—</p>
+        </div>
+        <span class="interview-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.7"/>
+            <path d="m9 9 6 6m0-6-6 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </article>
+    </section>
+
+    <section class="schedule-card" aria-labelledby="schedule-title">
+      <div class="schedule-heading">
+        <span class="schedule-heading-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <div>
+          <h2 id="schedule-title">Schedule Interview</h2>
+          <p>Set up an interview round and select the students to invite.</p>
+        </div>
+      </div>
+
+      <form id="interviewForm" onsubmit="scheduleBulkInterview(event)" class="form-grid interview-form">
+        <div class="field">
+          <label for="driveId">Placement Drive</label>
+          <select id="driveId" required aria-describedby="driveHelp">
+            <option value="">Loading placement drives…</option>
+          </select>
+          <small class="field-help" id="driveHelp">Choose the drive associated with this interview.</small>
+        </div>
+
+        <div class="field">
+          <label for="targetType">Target Students</label>
+          <select id="targetType" onchange="toggleInterviewTarget()">
+            <option value="INDIVIDUAL">Individual Student</option>
+            <option value="SPECIFIC">Multiple Students</option>
+            <option value="ALL">All Eligible Students</option>
+            <option value="BRANCH">Branch / Department</option>
+            <option value="RANGE">Roll Number Range</option>
+          </select>
+          <small class="field-help">Choose a student group. Only applicants to this drive can be scheduled.</small>
+        </div>
+
+        <div id="studentField" class="field target-field">
+          <label for="studentRollNumber">Student Roll Number</label>
+          <input id="studentRollNumber" placeholder="e.g. STU001" autocomplete="off">
+        </div>
+
+        <div id="studentsField" class="field target-field" style="display:none">
+          <label for="studentIds">Student Roll Numbers</label>
+          <input id="studentIds" placeholder="e.g. STU001, STU002, STU003" autocomplete="off">
+          <small class="field-help">Separate each student roll number with a comma.</small>
+        </div>
+
+        <div id="interviewBranchField" class="field target-field" style="display:none">
+          <label for="interviewBranch">Branch / Department</label>
+          <input id="interviewBranch" placeholder="e.g. Information Technology" autocomplete="off">
+        </div>
+
+        <div id="interviewRangeField" class="field interview-range-field" style="display:none">
+          <div class="field">
+            <label for="interviewFrom">From Roll Number</label>
+            <input id="interviewFrom" placeholder="e.g. STU001" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="interviewTo">To Roll Number</label>
+            <input id="interviewTo" placeholder="e.g. STU010" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="round">Round</label>
+          <input id="round" placeholder="e.g. Technical Round 1" required>
+        </div>
+
+        <div class="field">
+          <label for="interviewDate">Date</label>
+          <input id="interviewDate" type="date" required>
+        </div>
+
+        <div class="field">
+          <label for="interviewTime">Time</label>
+          <input id="interviewTime" type="time" required>
+        </div>
+
+        <div class="field">
+          <label for="type">Type</label>
+          <select id="type">
+            <option>ONLINE</option>
+            <option>OFFLINE</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="venue">Venue / Location</label>
+          <input id="venue" placeholder="e.g. Main Campus, Block A" required>
+        </div>
+
+        <div class="field">
+          <label for="meetingLink">Meeting Link <span class="optional-label">Optional</span></label>
+          <input id="meetingLink" type="url" placeholder="https://meet.example.com/your-room">
+          <small class="field-help">Add a link for online interviews.</small>
+        </div>
+
+        <div class="field full preview-action-field">
+          <button type="button" class="btn secondary preview-button" onclick="previewInterviewSelection()">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M2.5 12s3.2-6 9.5-6 9.5 6 9.5 6-3.2 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/>
+            </svg>
+            Preview Selected Students
+          </button>
+        </div>
+
+        <div class="field full">
+          <div id="preview" class="interview-preview" aria-live="polite">
+            <span class="preview-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm10 9v-1.5a3.5 3.5 0 0 0-2.5-3.35M16 3.15a4 4 0 0 1 0 7.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="preview-copy">
+              <strong>Student preview</strong>
+              <span>No students selected. Choose your target group and preview the invite list.</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="field full schedule-action-field">
+          <button type="submit" class="btn schedule-interview-button">
+            <span>Schedule Interview</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="interview-directory" aria-labelledby="interview-list-title">
+      <div class="directory-heading">
+        <div>
+          <p class="eyebrow">INTERVIEW PIPELINE</p>
+          <h2 id="interview-list-title">Interview Schedule</h2>
+          <p>Track interview sessions and update their progress.</p>
+        </div>
+        <span class="interview-result-count" id="interviewResultCount" aria-live="polite">Loading interviews…</span>
+      </div>
+
+      <div class="interview-filters" role="search">
+        <label class="interview-search">
+          <span class="visually-hidden">Search students, companies, or rounds</span>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+            <path d="m20 20-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input id="interviewSearch" type="search" placeholder="Search student, company, or round" autocomplete="off">
+        </label>
+        <label class="interview-filter">
+          <span class="visually-hidden">Filter by interview status</span>
+          <select id="interviewStatusFilter" aria-label="Filter by interview status">
+            <option value="">All statuses</option>
+            <option value="SCHEDULED">Scheduled</option>
+            <option value="ATTEMPTED">Attempted</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </label>
+        <button class="btn secondary clear-interview-filters" id="clearInterviewFilters" type="button">Clear filters</button>
+      </div>
+
+      <div class="interview-table-card">
+        <div class="interview-table-wrap">
+          <table class="table interview-table" aria-label="Interview schedule">
+            <thead>
+              <tr>
+                <th scope="col">Student</th>
+                <th scope="col">Company</th>
+                <th scope="col">Round</th>
+                <th scope="col">Date</th>
+                <th scope="col">Time</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody id="interviewsBody">
+              <tr><td class="interview-table-message" colspan="6">Loading interviews…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="js/api.js"></script>
+  <script src="js/interviews.js"></script>
+  <script src="js/manage-interviews.js"></script>
+  <script>toggleInterviewTarget(); loadInterviewDrives(); loadInterviews();</script>
+</body>
+</html>
