@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin-shell.css">
   <style>
     .dashboard-title {
       margin: 0 0 24px;
@@ -145,7 +146,17 @@
     </nav>
   </header>
   <main class="container">
-    <h1 class="dashboard-title">Welcome, <span data-user-name></span></h1>
+    <section class="admin-dashboard-intro">
+      <div>
+        <p class="admin-dashboard-eyebrow">ADMIN WORKSPACE · LIVE CAMPUS OVERVIEW</p>
+        <h1 class="dashboard-title">Welcome, <span data-user-name></span></h1>
+        <p>Monitor placement activity and move quickly between each stage of the recruitment workflow.</p>
+      </div>
+      <div class="admin-dashboard-actions" aria-label="Common admin actions">
+        <a href="manage-drives.html">Create a placement drive</a>
+        <a href="manage-interviews.html">Schedule interviews</a>
+      </div>
+    </section>
     <div class="grid dashboard-stats">
       <div class="card dashboard-stat-card dashboard-stat-card--students">
         <span class="dashboard-stat-label">Students</span>
@@ -214,6 +225,7 @@
     </div>
   </main>
   <div id="toast" class="toast"></div>
+  <script src="js/admin-shell.js"></script>
   <script src="js/api.js"></script>
   <script src="js/admin.js"></script>
   <script>loadAdmin()</script>
