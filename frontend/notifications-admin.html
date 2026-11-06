@@ -1,1 +1,252 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Send Notification</title><link rel="stylesheet" href="css/style.css"></head><body><header class="topbar"><div class="brand">Send Notification</div><nav><a href="admin-dashboard.html">Dashboard</a><button class="btn danger" onclick="logout()">Logout</button></nav></header><main class="container"><div class="card form"><h2>Notify Students</h2><div class="field"><label>Send Notification To</label><select id="targetType" onchange="toggleNotificationTarget()"><option value="ALL">All Students</option><option value="INDIVIDUAL">Individual Student</option><option value="BRANCH">Branch / Department</option><option value="SPECIFIC">Specific Students</option><option value="RANGE">Roll Number Range</option></select></div><div id="studentField" class="field" style="display:none"><label>Student Roll Number</label><input id="studentRollNumber" placeholder="STU001"></div><div id="branchField" class="field" style="display:none"><label>Select Branch / Department</label><select id="branch"><option>Computer Science</option><option>Information Technology</option><option>Electronics and Communication Engineering</option><option>Electrical and Electronics Engineering</option><option>Mechanical Engineering</option><option>Civil Engineering</option><option>Artificial Intelligence and Machine Learning</option><option>Data Science</option></select></div><div id="specificField" class="field" style="display:none"><label>Student Roll Numbers (comma-separated)</label><input id="rollNumbers" placeholder="STU001, STU005, STU008"></div><div id="rangeField" class="form-grid" style="display:none"><div class="field"><label>From Roll Number</label><input id="fromRollNumber" placeholder="STU001"></div><div class="field"><label>To Roll Number</label><input id="toRollNumber" placeholder="STU010"></div></div><div class="field"><label>Title</label><input id="title" required></div><div class="field"><label>Message</label><textarea id="message" required></textarea></div><button class="btn" onclick="sendNotification()">Send Notification</button></div></main><div id="toast" class="toast"></div><script src="js/api.js"></script><script src="js/notifications.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notify Students | Campus Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/notifications-admin.css">
+</head>
+<body class="notifications-admin-page">
+  <header class="topbar">
+    <a class="brand" href="notifications-admin.html" aria-label="Notify students">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>Student <strong>Notifications</strong></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a class="dashboard-link" href="admin-dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m3.5 10 8.5-7 8.5 7M5.5 9v11h13V9M9 20v-6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Dashboard
+      </a>
+      <button class="btn danger logout-button" type="button" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10m4-4 4-4-4-4m4 4H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Logout
+      </button>
+    </nav>
+  </header>
+
+  <main class="container notifications-container">
+    <section class="notification-hero" aria-labelledby="page-title">
+      <div class="notification-hero-copy">
+        <p class="eyebrow">CAMPUS COMMUNICATIONS</p>
+        <h1 id="page-title">Notify Students</h1>
+        <p>Share important placement updates with the right students, at the right time.</p>
+      </div>
+      <div class="notification-hero-art" aria-hidden="true">
+        <span class="notification-orbit notification-orbit-one"></span>
+        <span class="notification-orbit notification-orbit-two"></span>
+        <span class="notification-hero-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </div>
+    </section>
+
+    <section class="notification-stats" aria-label="Notification overview">
+      <article class="notification-stat notification-stat--blue">
+        <div class="notification-stat-copy">
+          <h2>Total Students</h2>
+          <p id="notificationTotalStudents" aria-live="polite">—</p>
+        </div>
+        <span class="notification-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm10 9v-1.5a3.5 3.5 0 0 0-2.5-3.35M16 3.15a4 4 0 0 1 0 7.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </article>
+      <article class="notification-stat notification-stat--purple">
+        <div class="notification-stat-copy">
+          <h2>Notifications Sent</h2>
+          <p id="notificationSentCount" aria-live="polite">0</p>
+          <small>This session</small>
+        </div>
+        <span class="notification-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="m3 11 18-8-8 18-2.5-7.5L3 11Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10.5 13.5 15 9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </article>
+      <article class="notification-stat notification-stat--green">
+        <div class="notification-stat-copy">
+          <h2>Read Notifications</h2>
+          <p aria-label="Not available from the current admin API">—</p>
+          <small>Delivery summary unavailable</small>
+        </div>
+        <span class="notification-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="m5 12 4.2 4.2L19 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </span>
+      </article>
+      <article class="notification-stat notification-stat--orange">
+        <div class="notification-stat-copy">
+          <h2>Unread Notifications</h2>
+          <p aria-label="Not available from the current admin API">—</p>
+          <small>Delivery summary unavailable</small>
+        </div>
+        <span class="notification-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 3.5 14.7 9l6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3L9.3 9 12 3.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </article>
+    </section>
+
+    <section class="compose-notification-card" aria-labelledby="compose-title">
+      <div class="compose-heading">
+        <span class="compose-heading-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <div>
+          <h2 id="compose-title">Compose Notification</h2>
+          <p>Write your update and choose the audience who should receive it.</p>
+        </div>
+      </div>
+
+      <form id="notificationForm" class="notification-form form-grid" onsubmit="sendNotification(event)">
+        <div class="field">
+          <label for="title">Notification Title</label>
+          <input id="title" maxlength="120" placeholder="e.g. Interview schedule update" required>
+        </div>
+        <div class="field">
+          <label for="notificationType">Notification Type</label>
+          <select id="notificationType">
+            <option value="GENERAL">General</option>
+            <option value="PLACEMENT">Placement</option>
+            <option value="INTERVIEW">Interview</option>
+            <option value="URGENT">Urgent</option>
+            <option value="ANNOUNCEMENT">Announcement</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="message">Message / Description</label>
+          <textarea id="message" maxlength="3000" rows="5" placeholder="Write a clear, helpful message for students…" required></textarea>
+          <small class="field-help"><span id="messageCharacterCount">0</span> / 3000 characters</small>
+        </div>
+        <div class="field">
+          <label for="targetType">Target Audience</label>
+          <select id="targetType" onchange="toggleNotificationTarget()">
+            <option value="ALL">All Students</option>
+            <option value="BRANCH">Selected Department</option>
+            <option value="BATCH">Specific Batch</option>
+            <option value="SPECIFIC">Selected Students</option>
+            <option value="INDIVIDUAL">Individual Student</option>
+            <option value="RANGE">Roll Number Range</option>
+          </select>
+          <small class="field-help">Targeting uses existing student and roll-number records.</small>
+        </div>
+        <div class="field">
+          <label for="notificationPriority">Priority</label>
+          <select id="notificationPriority">
+            <option value="LOW">Low</option>
+            <option value="MEDIUM" selected>Medium</option>
+            <option value="HIGH">High</option>
+          </select>
+        </div>
+
+        <div id="studentField" class="field notification-target-field" style="display:none">
+          <label for="studentRollNumber">Student Roll Number</label>
+          <input id="studentRollNumber" placeholder="e.g. STU001" autocomplete="off">
+        </div>
+        <div id="branchField" class="field notification-target-field" style="display:none">
+          <label for="branch">Department</label>
+          <select id="branch">
+            <option value="">Select a department</option>
+          </select>
+        </div>
+        <div id="batchField" class="field notification-target-field" style="display:none">
+          <label for="batch">Graduation Batch</label>
+          <select id="batch">
+            <option value="">Select a batch</option>
+          </select>
+          <small class="field-help">Batch recipients are sent using the existing selected-roll-number API.</small>
+        </div>
+        <div id="specificField" class="field full notification-target-field" style="display:none">
+          <label for="rollNumbers">Select Students</label>
+          <select id="selectedStudents" multiple size="5" aria-describedby="selectedStudentsHelp"></select>
+          <small class="field-help" id="selectedStudentsHelp">Choose one or more students. You can also enter roll numbers below.</small>
+          <label class="alternate-roll-label" for="rollNumbers">Or enter roll numbers, separated by commas</label>
+          <input id="rollNumbers" placeholder="e.g. STU001, STU005, STU008" autocomplete="off">
+        </div>
+        <div id="rangeField" class="field full notification-range-field" style="display:none">
+          <div class="field">
+            <label for="fromRollNumber">From Roll Number</label>
+            <input id="fromRollNumber" placeholder="e.g. STU001" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="toRollNumber">To Roll Number</label>
+            <input id="toRollNumber" placeholder="e.g. STU010" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="field full notification-preview-field">
+          <div class="notification-preview-heading">
+            <div>
+              <span class="eyebrow">PREVIEW</span>
+              <h3>Student notification</h3>
+            </div>
+            <span id="previewPriority" class="priority-badge priority-badge--medium">MEDIUM PRIORITY</span>
+          </div>
+          <article id="notificationPreview" class="notification-preview-card">
+            <span id="previewTypeIcon" class="preview-type-icon preview-type-icon--general" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <div class="notification-preview-content">
+              <div class="preview-card-meta">
+                <strong id="previewTitle">Your notification title</strong>
+                <span id="previewTypeBadge" class="notification-type-badge">GENERAL</span>
+              </div>
+              <p id="previewMessage">Your message will appear here as students receive it.</p>
+              <div class="preview-card-footer">
+                <span id="previewAudience">All Students</span>
+                <span>Just now</span>
+              </div>
+            </div>
+          </article>
+          <p class="metadata-notice">Type and priority are preview labels only; the current notification API stores the title and message.</p>
+        </div>
+
+        <div class="field full send-action">
+          <button id="sendNotificationButton" type="submit" class="btn send-notification-button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m3 11 18-8-8 18-2.5-7.5L3 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10.5 13.5 15 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <span>Send Notification</span>
+          </button>
+          <small class="send-note">You’ll review and confirm the audience before the notification is sent.</small>
+        </div>
+      </form>
+    </section>
+
+    <section class="notification-capabilities" aria-label="Notification management availability">
+      <span class="capabilities-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <p><strong>Notification delivery and history</strong><span>The current admin API supports sending notifications, but does not expose a global history, read receipts, editing, deletion, or resend actions.</span></p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="js/api.js"></script>
+  <script src="js/notifications.js"></script>
+</body>
+</html>
