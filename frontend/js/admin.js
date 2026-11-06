@@ -8,7 +8,7 @@ function driveStatusBadge(status) {
         COMPLETED: 'status-completed'
     }[status] || 'status-default';
     return '<span class="badge ' + statusClass + '">' + status + '</span>';
-}
+ }
 function renderRows(id, rows, fn) {
     const el = document.getElementById(id);
     if (!el) return;
