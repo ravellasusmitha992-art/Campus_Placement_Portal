@@ -1,4 +1,4 @@
-const APPLICATION_STATUSES = [
+ const APPLICATION_STATUSES = [
   ['APPLIED', 'Applied'],
   ['UNDER_REVIEW', 'Under review'],
   ['SHORTLISTED', 'Shortlisted'],
