@@ -7,7 +7,7 @@
     background:
         radial-gradient(ellipse at 92% 9%, rgba(80, 120, 225, .09), transparent 28rem),
         linear-gradient(180deg, #f8faff 0%, #f3f6fb 100%);
-}
+ }
 
 .manage-drives-page .topbar {
     height: 72px;
