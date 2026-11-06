@@ -8,7 +8,7 @@
     { file: 'manage-interviews.html', label: 'Interviews', icon: '<rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17M8 13h3M8 16.5h6"/>' },
     { file: 'manage-results.html', label: 'Results', icon: '<path d="M12 3 14.8 8.7l6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/>' },
     { file: 'notifications-admin.html', label: 'Notifications', icon: '<path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/>' }
-  ];
+   ];
 
   const header = document.querySelector('.topbar');
   const main = document.querySelector('main');
