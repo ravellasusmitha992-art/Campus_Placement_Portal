@@ -6,7 +6,7 @@ async function api(path, options = {}) {
     let data; try { data = await r.json() } catch (e) { data = { success: r.ok, message: await r.text() } }
     if (!r.ok || data.success === false) throw new Error(data.message || ('HTTP ' + r.status));
     return data;
-}
+ }
 function session() { try { return JSON.parse(localStorage.getItem('placementUser') || 'null') } catch (e) { return null } }
 function saveSession(u) { localStorage.setItem('placementUser', JSON.stringify(u)) }
 function logout() { localStorage.removeItem('placementUser'); location.href = 'login.html' }
