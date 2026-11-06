@@ -1,4 +1,4 @@
-const companyState = {
+ const companyState = {
   records: [],
   editingId: null,
   loading: false
@@ -258,9 +258,8 @@ function renderCompanies() {
   if (companyState.loading) return;
 
   const companies = getFilteredCompanies();
-  companyElements.resultCount.textContent = `${companies.length.toLocaleString()} ${
-    companies.length === 1 ? 'company' : 'companies'
-  }`;
+  companyElements.resultCount.textContent = `${companies.length.toLocaleString()} ${companies.length === 1 ? 'company' : 'companies'
+    }`;
 
   if (companies.length === 0) {
     renderCompanyState(
