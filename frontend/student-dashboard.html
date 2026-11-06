@@ -1,1 +1,71 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Student Dashboard</title><link rel="stylesheet" href="css/style.css"></head><body><header class="topbar"><div class="brand">Student Portal</div><nav><a href="student-dashboard.html">Dashboard</a><a href="profile.html">Profile</a><a href="placements.html">Drives</a><a href="applications.html">Applications</a><a href="interviews.html">Interviews</a><a href="results.html">Results</a><a href="notifications.html">Notifications</a><button class="btn danger" onclick="logout()">Logout</button></nav></header><main class="container"><h1>Welcome, <span data-user-name></span></h1><div class="grid"><div class="card"><div class="muted">CGPA</div><div class="stat" id="cgpa">-</div></div><div class="card"><div class="muted">Applications</div><div class="stat" id="appCount">-</div></div><div class="card"><div class="muted">Interviews</div><div class="stat" id="interviewCount">-</div></div><div class="card"><div class="muted">Results</div><div class="stat" id="resultCount">-</div></div></div><div class="section-title"><h2>Available Placement Drives</h2></div><div id="drives" class="grid"></div></main><div id="toast" class="toast"></div><script src="js/api.js"></script><script src="js/student.js"></script><script>loadStudent()</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101b35">
+    <title>Student Dashboard | Campus Connect</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/student-portal.css">
+</head>
+<body class="student-app">
+    <header class="topbar">
+        <a class="brand" href="student-dashboard.html"><span class="student-brand-mark" aria-hidden="true">C</span><span>Campus Connect</span></a>
+        <div class="student-top-meta"><span class="student-top-name" data-user-name></span><span class="student-avatar" data-user-avatar aria-hidden="true">S</span><button class="btn danger" onclick="logout()">Logout</button></div>
+    </header>
+    <div class="student-shell">
+        <aside class="student-sidebar" aria-label="Student navigation">
+            <p class="student-sidebar-label">Student workspace</p>
+            <nav class="student-nav">
+                <a href="student-dashboard.html" aria-current="page"><span class="student-nav-icon">⌂</span>Dashboard</a>
+                <a href="profile.html"><span class="student-nav-icon">◉</span>My Profile</a>
+                <a href="placements.html"><span class="student-nav-icon">◇</span>Opportunities</a>
+                <a href="applications.html"><span class="student-nav-icon">▤</span>Applications</a>
+                <a href="interviews.html"><span class="student-nav-icon">◷</span>Interviews</a>
+                <a href="notifications.html"><span class="student-nav-icon">♧</span>Notifications</a>
+                <a href="results.html"><span class="student-nav-icon">✦</span>Results</a>
+                <a href="companies.html"><span class="student-nav-icon">▦</span>Companies</a>
+            </nav>
+        </aside>
+        <main class="student-main">
+            <div class="student-container">
+                <section class="card student-hero">
+                    <div>
+                        <p class="student-eyebrow">Your placement journey</p>
+                        <h1>Welcome back, <span data-user-name>Student</span></h1>
+                        <p>Discover opportunities, keep your applications moving, and stay ready for what comes next.</p>
+                        <p class="student-identity-line"><span data-user-roll>Roll number</span> <span aria-hidden="true">·</span> <span data-user-department>Department</span></p>
+                        <a class="btn" href="placements.html">Explore opportunities <span aria-hidden="true">→</span></a>
+                    </div>
+                    <div class="student-hero-art" aria-hidden="true">✦</div>
+                </section>
+                <section class="grid" aria-label="Placement overview">
+                    <article class="card student-stat-card" style="--stat-color:#4268e8;--stat-wash:#edf1ff"><span class="student-stat-icon" aria-hidden="true">◇</span><div class="student-stat-label">Available jobs</div><div class="student-stat-value" id="availableJobs">—</div></article>
+                    <article class="card student-stat-card" style="--stat-color:#7656d9;--stat-wash:#f1edff"><span class="student-stat-icon" aria-hidden="true">▤</span><div class="student-stat-label">Applied jobs</div><div class="student-stat-value" id="appCount">—</div></article>
+                    <article class="card student-stat-card" style="--stat-color:#12956b;--stat-wash:#e8f8f1"><span class="student-stat-icon" aria-hidden="true">✓</span><div class="student-stat-label">Shortlisted</div><div class="student-stat-value" id="shortlistedCount">—</div></article>
+                    <article class="card student-stat-card" style="--stat-color:#d28b24;--stat-wash:#fff6e8"><span class="student-stat-icon" aria-hidden="true">◷</span><div class="student-stat-label">Upcoming interviews</div><div class="student-stat-value" id="interviewCount">—</div></article>
+                    <article class="card student-stat-card" style="--stat-color:#16866b;--stat-wash:#e8f8f1"><span class="student-stat-icon" aria-hidden="true">✦</span><div class="student-stat-label">Selected companies</div><div class="student-stat-value" id="selectedCount">—</div></article>
+                    <article class="card student-stat-card" style="--stat-color:#4268e8;--stat-wash:#edf1ff"><span class="student-stat-icon" aria-hidden="true">▥</span><div class="student-stat-label">Current CGPA</div><div class="student-stat-value" id="cgpa">—</div></article>
+                </section>
+                <div class="section-title"><h2>Placement progress</h2><a class="student-detail-link" href="applications.html">View applications →</a></div>
+                <section class="card student-page-card">
+                    <div class="student-progress-top"><span>Application activity</span><strong id="placementProgressLabel">0 applications</strong></div>
+                    <div class="student-progress-track"><span id="placementProgressBar" style="width:0%"></span></div>
+                    <p class="student-app-progress" id="placementProgressHint">Your placement activity will appear here as you apply to opportunities.</p>
+                </section>
+                <div class="section-title"><h2>Placement activity</h2><a class="student-detail-link" href="notifications.html">All notifications →</a></div>
+                <section class="student-list-layout">
+                    <div class="student-list-panel"><div class="card student-page-card"><h2>Upcoming interviews</h2><div id="dashboardInterviews" class="student-activity-list"></div></div></div>
+                    <div class="student-list-panel"><div class="card student-page-card"><h2>Latest announcements</h2><div id="dashboardAnnouncements" class="student-activity-list"></div></div></div>
+                    <div class="student-list-panel"><div class="card student-page-card"><h2>Recent applications</h2><div id="dashboardApplications" class="student-activity-list"></div></div></div>
+                    <div class="student-list-panel"><div class="card student-page-card"><h2>Latest placement results</h2><div id="dashboardResults" class="student-activity-list"></div></div></div>
+                </section>
+                <div class="section-title"><h2>Available placement drives</h2><a class="student-detail-link" href="placements.html">Browse all opportunities →</a></div>
+                <div id="drives" class="grid student-card-grid"></div>
+            </div>
+        </main>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="js/api.js"></script><script src="js/student.js"></script><script>loadStudent()</script>
+</body>
+</html>
