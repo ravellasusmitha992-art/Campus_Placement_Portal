@@ -1,1 +1,271 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage Results</title><link rel="stylesheet" href="css/style.css"></head><body><header class="topbar"><div class="brand">Manage Results</div><nav><a href="admin-dashboard.html">Dashboard</a><button class="btn danger" onclick="logout()">Logout</button></nav></header><main class="container"><div class="card form"><h2>Publish Result</h2><form onsubmit="publishResult(event)" class="form-grid"><div class="field"><label>Application ID</label><input name="applicationId" type="number" required></div><div class="field"><label>Package (LPA)</label><input name="package" type="number" step="0.1" required></div><div class="field"><label>Status</label><select name="status"><option>SELECTED</option><option>NOT_SELECTED</option></select></div><div class="field"><label>Joining Date</label><input name="joiningDate" type="date"></div><div class="field full"><button class="btn">Publish Result</button></div></form></div><h1>Published Results</h1><div class="card table-wrap"><table class="table"><thead><tr><th>Student</th><th>Company</th><th>Role</th><th>Package</th><th>Status</th></tr></thead><tbody id="resultsBody"></tbody></table></div></main><div id="toast" class="toast"></div><script src="js/api.js"></script><script src="js/admin.js"></script><script src="js/admin-tools.js"></script><script>loadAdminTables()</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Published Results | Campus Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/manage-results.css">
+</head>
+<body class="manage-results-page">
+  <header class="topbar">
+    <a class="brand" href="manage-results.html" aria-label="Published placement results">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3 14.8 8.7l6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>Placement <strong>Results</strong></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a class="dashboard-link" href="admin-dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m3.5 10 8.5-7 8.5 7M5.5 9v11h13V9M9 20v-6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Dashboard
+      </a>
+      <button class="btn danger logout-button" type="button" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10m4-4 4-4-4-4m4 4H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Logout
+      </button>
+    </nav>
+  </header>
+
+  <main class="container results-container">
+    <section class="results-hero" aria-labelledby="page-title">
+      <div class="results-hero-copy">
+        <p class="eyebrow">CAMPUS RECRUITMENT</p>
+        <h1 id="page-title">Published Results</h1>
+        <p>Celebrate student success and keep every placement outcome in one place.</p>
+      </div>
+      <div class="results-hero-mark" aria-hidden="true">
+        <span class="hero-ring hero-ring-one"></span>
+        <span class="hero-ring hero-ring-two"></span>
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3 14.8 8.7l6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </section>
+
+    <section class="results-stats" aria-label="Placement result statistics">
+      <article class="result-stat result-stat--blue">
+        <div class="result-stat-copy">
+          <h2>Total Students</h2>
+          <p id="totalResultStudents" aria-live="polite">—</p>
+        </div>
+        <span class="result-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M16 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 18.5V20M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm10 9v-1.5a3.5 3.5 0 0 0-2.5-3.35M16 3.15a4 4 0 0 1 0 7.7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </article>
+      <article class="result-stat result-stat--green">
+        <div class="result-stat-copy">
+          <h2>Total Selected</h2>
+          <p id="totalSelectedResults" aria-live="polite">—</p>
+        </div>
+        <span class="result-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="m5 12 4.2 4.2L19 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </span>
+      </article>
+      <article class="result-stat result-stat--purple">
+        <div class="result-stat-copy">
+          <h2>Total Companies</h2>
+          <p id="totalResultCompanies" aria-live="polite">—</p>
+        </div>
+        <span class="result-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M4 20V8.5L12 4l8 4.5V20M2.5 20h19M9 20v-6h6v6M8 9h.01M12 9h.01M16 9h.01" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </article>
+      <article class="result-stat result-stat--orange">
+        <div class="result-stat-copy">
+          <h2>Highest Package</h2>
+          <p id="highestResultPackage" aria-live="polite">—</p>
+        </div>
+        <span class="result-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M3.5 17.5 9 12l3.5 3.5L20.5 7M14.5 7h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </article>
+    </section>
+
+    <section class="publish-card" aria-labelledby="publish-title">
+      <div class="publish-heading">
+        <span class="publish-heading-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <div>
+          <h2 id="publish-title">Publish a Result</h2>
+          <p>Record an outcome for a student application.</p>
+        </div>
+      </div>
+      <form id="publishResultForm" onsubmit="publishResult(event)" class="form-grid publish-form">
+        <div class="field">
+          <label for="applicationId">Application ID</label>
+          <input id="applicationId" name="applicationId" type="number" min="1" placeholder="Enter application ID" required>
+        </div>
+        <div class="field">
+          <label for="resultPackage">Package (LPA)</label>
+          <input id="resultPackage" name="package" type="number" min="0" step="0.1" placeholder="e.g. 12.5" required>
+        </div>
+        <div class="field">
+          <label for="resultStatus">Selection Status</label>
+          <select id="resultStatus" name="status">
+            <option value="SELECTED">Selected</option>
+            <option value="NOT_SELECTED">Not selected</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="joiningDate">Joining Date <span class="optional-label">Optional</span></label>
+          <input id="joiningDate" name="joiningDate" type="date">
+        </div>
+        <div class="field full publish-action">
+          <button type="submit" class="btn publish-result-button">
+            <span>Publish Result</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="results-directory" aria-labelledby="results-directory-title">
+      <div class="directory-heading">
+        <div>
+          <p class="eyebrow">PLACEMENT OUTCOMES</p>
+          <h2 id="results-directory-title">Student Results</h2>
+          <p>Browse, filter, and export published placement outcomes.</p>
+        </div>
+        <span id="resultsCount" class="results-count" aria-live="polite">Loading results…</span>
+      </div>
+
+      <div class="results-toolbar">
+        <div class="result-filters" role="search">
+          <label class="result-search">
+            <span class="visually-hidden">Search by student name, roll number, or company</span>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+              <path d="m20 20-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <input id="resultSearch" type="search" placeholder="Search student, roll number, or company" autocomplete="off">
+          </label>
+          <label class="result-filter">
+            <span class="visually-hidden">Filter by company</span>
+            <select id="resultCompanyFilter" aria-label="Filter by company">
+              <option value="">All companies</option>
+            </select>
+          </label>
+          <label class="result-filter">
+            <span class="visually-hidden">Filter by department</span>
+            <select id="resultDepartmentFilter" aria-label="Filter by department">
+              <option value="">All departments</option>
+            </select>
+          </label>
+          <label class="result-filter">
+            <span class="visually-hidden">Filter by graduation batch</span>
+            <select id="resultBatchFilter" aria-label="Filter by graduation batch">
+              <option value="">All batches</option>
+            </select>
+          </label>
+          <label class="result-filter">
+            <span class="visually-hidden">Filter by selection status</span>
+            <select id="resultStatusFilter" aria-label="Filter by selection status">
+              <option value="">All statuses</option>
+              <option value="SELECTED">Selected</option>
+              <option value="NOT_SELECTED">Not selected</option>
+              <option value="SHORTLISTED">Shortlisted</option>
+              <option value="PENDING">Pending</option>
+            </select>
+          </label>
+          <label class="result-filter result-sort">
+            <span class="visually-hidden">Sort results</span>
+            <select id="resultSort" aria-label="Sort results">
+              <option value="package-desc">Package: highest first</option>
+              <option value="package-asc">Package: lowest first</option>
+              <option value="student-asc">Student: A to Z</option>
+              <option value="company-asc">Company: A to Z</option>
+            </select>
+          </label>
+          <button class="btn secondary clear-result-filters" id="clearResultFilters" type="button">Clear filters</button>
+        </div>
+        <div class="result-export-actions" aria-label="Export results">
+          <div class="results-view-toggle" role="group" aria-label="Choose results layout">
+            <button id="resultCardsView" class="view-toggle-button is-active" type="button" aria-pressed="true">Cards</button>
+            <button id="resultTableView" class="view-toggle-button" type="button" aria-pressed="false">Table</button>
+          </div>
+          <button id="exportResultsCsv" class="btn secondary export-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 16v3.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Export Excel (CSV)
+          </button>
+          <button id="downloadResultsPdf" class="btn secondary export-button" type="button">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 3.75h7l4 4V20a.75.75 0 0 1-.75.75h-10.5A.75.75 0 0 1 6 20V4.5a.75.75 0 0 1 .75-.75ZM14 4v4h4M8 13h8m-8 3h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download PDF
+          </button>
+        </div>
+      </div>
+
+      <section id="featuredResults" class="featured-results" aria-label="Published placement results"></section>
+
+      <div class="results-table-card" id="resultsTableCard" hidden>
+        <div class="results-table-wrap">
+          <table class="table results-table" aria-label="Published student placement results">
+            <thead>
+              <tr>
+                <th scope="col">Student</th>
+                <th scope="col">Company</th>
+                <th scope="col">Role</th>
+                <th scope="col">Department</th>
+                <th scope="col">Batch</th>
+                <th scope="col">Package</th>
+                <th scope="col">Status</th>
+                <th scope="col">Details</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <tr><td class="results-table-message" colspan="8">Loading published results…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <nav class="results-pagination" id="resultsPagination" aria-label="Results table pages" hidden>
+        <span id="resultsPaginationStatus" aria-live="polite"></span>
+        <div class="pagination-actions">
+          <button class="btn secondary" id="previousResultsPage" type="button">Previous</button>
+          <button class="btn secondary" id="nextResultsPage" type="button">Next</button>
+        </div>
+      </nav>
+    </section>
+  </main>
+
+  <dialog id="resultDetailsDialog" class="result-details-dialog" aria-labelledby="resultDetailsTitle">
+    <div class="details-dialog-heading">
+      <div>
+        <p class="eyebrow">STUDENT PLACEMENT</p>
+        <h2 id="resultDetailsTitle">Result Details</h2>
+      </div>
+      <button id="closeResultDetails" class="dialog-close" type="button" aria-label="Close result details">×</button>
+    </div>
+    <div id="resultDetailsContent" class="details-dialog-content"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="js/api.js"></script>
+  <script src="js/admin-tools.js"></script>
+  <script src="js/manage-results.js"></script>
+</body>
+</html>
