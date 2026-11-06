@@ -11,7 +11,7 @@ const interviewElements = {
   status: document.getElementById('interviewStatusFilter'),
   clear: document.getElementById('clearInterviewFilters'),
   resultCount: document.getElementById('interviewResultCount')
-};
+ };
 
 interviewElements.search.addEventListener('input', renderInterviews);
 interviewElements.status.addEventListener('change', renderInterviews);
