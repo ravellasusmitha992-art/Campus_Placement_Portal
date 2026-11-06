@@ -1,1 +1,176 @@
-<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage Applications</title><link rel="stylesheet" href="css/style.css"></head><body><header class="topbar"><div class="brand">Manage Applications</div><nav><a href="admin-dashboard.html">Dashboard</a><button class="btn danger" onclick="logout()">Logout</button></nav></header><main class="container"><h1>Application Review</h1><div class="card table-wrap"><table class="table"><thead><tr><th>Student</th><th>Company</th><th>Role</th><th>Applied</th><th>Details</th><th>Status</th><th>Update</th></tr></thead><tbody id="applicationsBody"></tbody></table></div></main><div id="toast" class="toast"></div><script src="js/api.js"></script><script src="js/applications.js"></script><script>loadApplications()</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Manage Applications | Campus Portal</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/manage-applications.css">
+</head>
+<body class="manage-applications-page">
+  <header class="topbar">
+    <a class="brand" href="manage-applications.html" aria-label="Manage applications">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M7 3.75h7l4 4V20a.75.75 0 0 1-.75.75h-10.5A.75.75 0 0 1 6 20V4.5a.75.75 0 0 1 .75-.75Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M14 4v4h4M9 12h6M9 15.5h6M9 8.5h1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <span>Manage <strong>Applications</strong></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a class="dashboard-link" href="admin-dashboard.html">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="m3.5 10 8.5-7 8.5 7M5.5 9v11h13V9M9 20v-6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Dashboard
+      </a>
+      <button class="btn danger logout-button" type="button" onclick="logout()">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M10 4H5.5A1.5 1.5 0 0 0 4 5.5v13A1.5 1.5 0 0 0 5.5 20H10m4-4 4-4-4-4m4 4H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Logout
+      </button>
+    </nav>
+  </header>
+
+  <main class="container applications-container">
+    <section class="applications-hero" aria-labelledby="page-title">
+      <div class="applications-hero-copy">
+        <p class="eyebrow">CAMPUS RECRUITMENT</p>
+        <h1 id="page-title">Application Review</h1>
+        <p>Review, track, and manage student placement applications.</p>
+      </div>
+      <div class="hero-total" aria-label="Total applications">
+        <span class="hero-total-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 3.75h7l4 4V20a.75.75 0 0 1-.75.75h-10.5A.75.75 0 0 1 6 20V4.5a.75.75 0 0 1 .75-.75Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M14 4v4h4M9 12h6M9 15.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="hero-total-label">Total applications</span>
+        <strong id="totalApplications" aria-live="polite">—</strong>
+      </div>
+      <span class="hero-orbit hero-orbit-one" aria-hidden="true"></span>
+      <span class="hero-orbit hero-orbit-two" aria-hidden="true"></span>
+    </section>
+
+    <section class="application-stats" aria-label="Application status summary">
+      <article class="application-stat application-stat--blue">
+        <div class="application-stat-copy">
+          <h2>Applied</h2>
+          <p id="appliedApplications" aria-live="polite">—</p>
+        </div>
+        <span class="application-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M8 3.75h8M9 3.75v4.1l-4.1 8.2A3.5 3.5 0 0 0 8.03 21h7.94a3.5 3.5 0 0 0 3.13-4.95L15 7.85v-4.1M8 13h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </article>
+      <article class="application-stat application-stat--green">
+        <div class="application-stat-copy">
+          <h2>Shortlisted</h2>
+          <p id="shortlistedApplications" aria-live="polite">—</p>
+        </div>
+        <span class="application-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="m5 12 4.2 4.2L19 6.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="9.5" stroke="currentColor" stroke-width="1.6"/>
+          </svg>
+        </span>
+      </article>
+      <article class="application-stat application-stat--purple">
+        <div class="application-stat-copy">
+          <h2>Interview Scheduled</h2>
+          <p id="interviewApplications" aria-live="polite">—</p>
+        </div>
+        <span class="application-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3.5" y="5" width="17" height="16" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M7.5 3v4M16.5 3v4M3.5 9.5h17M8 13h3M8 16.5h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </article>
+      <article class="application-stat application-stat--emerald">
+        <div class="application-stat-copy">
+          <h2>Selected</h2>
+          <p id="selectedApplications" aria-live="polite">—</p>
+        </div>
+        <span class="application-stat-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </article>
+    </section>
+
+    <section class="application-directory" aria-labelledby="applications-title">
+      <div class="directory-heading">
+        <div>
+          <p class="eyebrow">CANDIDATE PIPELINE</p>
+          <h2 id="applications-title">Student Applications</h2>
+          <p>Review candidate details and keep application statuses up to date.</p>
+        </div>
+        <span class="application-result-count" id="applicationResultCount" aria-live="polite">Loading applications…</span>
+      </div>
+
+      <div class="application-filters" role="search">
+        <label class="application-search">
+          <span class="visually-hidden">Search by student or company</span>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
+            <path d="m20 20-4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input id="applicationSearch" type="search" placeholder="Search student or company" autocomplete="off">
+        </label>
+        <label class="application-filter">
+          <span class="visually-hidden">Filter by application status</span>
+          <select id="applicationStatusFilter" aria-label="Filter by application status">
+            <option value="">All statuses</option>
+            <option value="APPLIED">Applied</option>
+            <option value="UNDER_REVIEW">Under review</option>
+            <option value="SHORTLISTED">Shortlisted</option>
+            <option value="INTERVIEW_SCHEDULED">Interview scheduled</option>
+            <option value="INTERVIEW_NOT_SCHEDULED">Interview not scheduled</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="SELECTED">Selected</option>
+          </select>
+        </label>
+        <label class="application-filter application-sort">
+          <span class="visually-hidden">Sort applications by applied date</span>
+          <select id="applicationDateSort" aria-label="Sort applications by applied date">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+        </label>
+        <button class="btn secondary clear-application-filters" id="clearApplicationFilters" type="button">Clear filters</button>
+      </div>
+
+      <div class="application-table-card">
+        <div class="application-table-wrap">
+          <table class="table application-table" aria-label="Student placement applications">
+            <thead>
+              <tr>
+                <th scope="col">Student</th>
+                <th scope="col">Company</th>
+                <th scope="col">Role</th>
+                <th scope="col">Applied</th>
+                <th scope="col">Details</th>
+                <th scope="col">Status</th>
+                <th scope="col">Update</th>
+              </tr>
+            </thead>
+            <tbody id="applicationsBody">
+              <tr><td class="application-table-message" colspan="7">Loading applications…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="js/api.js"></script>
+  <script src="js/applications.js"></script>
+</body>
+</html>
