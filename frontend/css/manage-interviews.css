@@ -152,7 +152,7 @@
   line-height: 1.15;
 }
 
-.interviews-hero-copy > p:last-child {
+.interviews-hero-copy>p:last-child {
   margin: 12px 0 0;
   color: #d3def6;
   font-size: 15px;
@@ -340,7 +340,7 @@
   gap: 8px;
 }
 
-.manage-interviews-page .field > label {
+.manage-interviews-page .field>label {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -349,7 +349,7 @@
   font-weight: 700;
 }
 
-.manage-interviews-page .field > label::before {
+.manage-interviews-page .field>label::before {
   width: 14px;
   height: 14px;
   flex: 0 0 auto;
@@ -501,7 +501,7 @@
   font-size: 12px;
 }
 
-.preview-copy > span {
+.preview-copy>span {
   color: #78869d;
 }
 
@@ -638,7 +638,7 @@
   letter-spacing: -.03em;
 }
 
-.directory-heading > div > p:last-child {
+.directory-heading>div>p:last-child {
   margin: 6px 0 0;
   color: #78869d;
   font-size: 13px;
@@ -1017,7 +1017,7 @@
   font-size: 14px;
 }
 
-.interview-empty-state > span:last-child {
+.interview-empty-state>span:last-child {
   font-size: 12px;
 }
 
@@ -1169,7 +1169,7 @@
     font-size: 29px;
   }
 
-  .interviews-hero-copy > p:last-child {
+  .interviews-hero-copy>p:last-child {
     max-width: 310px;
     margin-top: 8px;
     font-size: 13px;
@@ -1257,7 +1257,7 @@
     gap: 16px;
   }
 
-  .manage-interviews-page .interview-form > .field.full {
+  .manage-interviews-page .interview-form>.field.full {
     grid-column: auto;
   }
 
@@ -1341,6 +1341,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .manage-interviews-page *,
   .manage-interviews-page *::before,
   .manage-interviews-page *::after {
