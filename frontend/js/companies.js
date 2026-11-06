@@ -15,7 +15,7 @@ async function loadCompanies() {
     } catch (error) {
         toast(error.message);
         element.innerHTML = '<div class="student-empty-state"><strong>Company information is temporarily unavailable</strong>Please refresh the page to try again.</div>';
-    }
+      }
 }
 
 function renderCompanies() {
