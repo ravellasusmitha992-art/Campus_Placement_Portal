@@ -15,7 +15,7 @@ async function loadInterviewDrives() {
     if (!rows.length) {
       select.innerHTML = '<option value="">No placement drives available</option>';
       toast('Create a placement drive before scheduling interviews.');
-    }
+     }
   } catch (error) {
     select.innerHTML = '<option value="">Could not load placement drives</option>';
     select.disabled = true;
