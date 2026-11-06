@@ -1,4 +1,4 @@
-const RESULTS_PER_PAGE = 10;
+ const RESULTS_PER_PAGE = 10;
 
 const publishedResultsState = {
   records: [],
